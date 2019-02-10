@@ -97,6 +97,7 @@ set( fc_sources
      src/crypto/elliptic_r1.cpp
      src/crypto/rand.cpp
      src/crypto/public_key.cpp
+     src/crypto/public_key_point.cpp
      src/crypto/private_key.cpp
      src/crypto/signature.cpp
      src/network/ip.cpp

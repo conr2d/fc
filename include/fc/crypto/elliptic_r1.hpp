@@ -132,11 +132,20 @@ namespace fc {
      /**
        * Shims
        */
+     struct public_key_point_shim : public crypto::shim<public_key_point_data> {
+        using crypto::shim<public_key_point_data>::shim;
+     };
+
      struct public_key_shim : public crypto::shim<public_key_data> {
+        using public_key_point_type = public_key_point_shim;
         using crypto::shim<public_key_data>::shim;
 
         bool valid()const {
            return public_key(_data).valid();
+        }
+
+        public_key_point_type decompress()const {
+           return public_key_point_type(public_key(_data).serialize_ecc_point());
         }
      };
 
@@ -223,5 +232,6 @@ namespace fc {
 FC_REFLECT_TYPENAME( fc::crypto::r1::private_key )
 FC_REFLECT_TYPENAME( fc::crypto::r1::public_key )
 FC_REFLECT_DERIVED( fc::crypto::r1::public_key_shim, (fc::crypto::shim<fc::crypto::r1::public_key_data>), BOOST_PP_SEQ_NIL )
+FC_REFLECT_DERIVED( fc::crypto::r1::public_key_point_shim, (fc::crypto::shim<fc::crypto::r1::public_key_point_data>), BOOST_PP_SEQ_NIL )
 FC_REFLECT_DERIVED( fc::crypto::r1::signature_shim, (fc::crypto::shim<fc::crypto::r1::compact_signature>), BOOST_PP_SEQ_NIL )
 FC_REFLECT_DERIVED( fc::crypto::r1::private_key_shim, (fc::crypto::shim<fc::crypto::r1::private_key_secret>), BOOST_PP_SEQ_NIL )

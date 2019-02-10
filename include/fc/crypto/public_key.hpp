@@ -47,6 +47,7 @@ namespace fc { namespace crypto {
          friend bool operator < ( const public_key& p1, const public_key& p2);
          friend struct reflector<public_key>;
          friend class private_key;
+         friend class public_key_point;
    }; // public_key
 
 } }  // fc::crypto
