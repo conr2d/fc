@@ -7,6 +7,8 @@
 #include <boost/scoped_array.hpp>
 #include <fc/reflect/variant.hpp>
 #include <fc/io/json.hpp>
+#include <fc/io/datastream.hpp>
+#include <fc/io/raw.hpp>
 #include <algorithm>
 
 namespace fc
@@ -733,13 +735,41 @@ void to_variant( const std::vector<char>& var,  variant& vo )
       vo = variant(to_hex(var.data(),var.size()));
    else vo = "";
 }
+
+#define SERIALIZE(type, handler)                  \
+   do {                                           \
+      vo.resize(sizeof(type));                    \
+      datastream<char*> ds(vo.data(), vo.size()); \
+      fc::raw::pack(ds, var.handler());         \
+   } while (0)
+
 void from_variant( const variant& var,  std::vector<char>& vo )
 {
-   const auto& str = var.get_string();
-   FC_ASSERT( str.size() <= 2*MAX_SIZE_OF_BYTE_ARRAYS ); // Doubled because hex strings needs two characters per byte
-   vo.resize( str.size() / 2 ); {
-      size_t r = from_hex( str, vo.data(), vo.size() );
-      FC_ASSERT( r == vo.size() );
+   using type_id = variant::type_id;
+
+   switch( var.get_type() ) {
+      case type_id::int64_type:
+         SERIALIZE(int64_t, as_int64);
+         break;
+      case type_id::uint64_type:
+         SERIALIZE(uint64_t, as_uint64);
+         break;
+      case type_id::double_type:
+         SERIALIZE(double, as_double);
+         break;
+      case type_id::bool_type:
+         SERIALIZE(bool, as_bool);
+         break;
+      default:
+         auto str = var.as_string();
+         if (str.find("0x") != string::npos)
+            str = str.substr(2);
+         FC_ASSERT( str.size() <= 2*MAX_SIZE_OF_BYTE_ARRAYS ); // Doubled because hex strings needs two characters per byte
+         vo.resize( (str.size() + 1) / 2 );
+         if( vo.size() ) {
+            size_t r = from_hex( str, vo.data(), vo.size() );
+            FC_ASSERT( r == vo.size() );
+         }
    }
 }
 
