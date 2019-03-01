@@ -433,7 +433,7 @@ namespace fc { namespace json_relaxed
        while(true)
        {
            if( i >= n )
-               return parseInt<10>( token, start );
+               return (dot_ok) ? parseInt<10>( token, start ) : fc::to_double( token );
            char c = token[i++];
            //idump((c)(std::string()+c));
            switch( c )
@@ -442,7 +442,6 @@ namespace fc { namespace json_relaxed
                case '5': case '6': case '7': case '8': case '9':
                    break;
                case '.':
-                   return fc::variant(token);
                    if( dot_ok )
                    {
                        dot_ok = false;
