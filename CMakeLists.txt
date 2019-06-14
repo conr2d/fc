@@ -120,13 +120,6 @@ set( sources
 list(APPEND sources ${fc_headers})
 
 setup_library( fc SOURCES ${sources} LIBRARY_TYPE STATIC DONT_INSTALL_LIBRARY )
-
-find_package(Boost 1.66 REQUIRED COMPONENTS
-    date_time
-    filesystem
-    chrono
-    unit_test_framework
-    iostreams)
   
 IF(APPLE)
   # As of 10.10 yosemite, the OpenSSL static libraries shipped with os x have a dependency
@@ -147,10 +140,12 @@ else()
 endif( ZLIB_FOUND )
 
 # This will become unnecessary once we update to websocketpp which fixes upstream issue #395
-add_definitions(-DWEBSOCKETPP_STRICT_MASKING -DBOOST_ASIO_HAS_STD_CHRONO)
+SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DWEBSOCKETPP_STRICT_MASKING")
+SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DBOOST_ASIO_HAS_STD_CHRONO")
 
 target_include_directories(fc
   PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include
+    ${Boost_INCLUDE_DIR}
     ${OPENSSL_INCLUDE_DIR}
     ${CMAKE_CURRENT_SOURCE_DIR}/vendor/websocketpp
   )
@@ -163,9 +158,7 @@ IF(APPLE)
   find_library(security_framework Security)
   find_library(corefoundation_framework CoreFoundation)
 ENDIF()
-target_link_libraries( fc PUBLIC ${LINK_USR_LOCAL_LIB}
-                                 Boost::date_time Boost::filesystem Boost::chrono Boost::iostreams Threads::Threads
-                                 ${OPENSSL_LIBRARIES} ${ZLIB_LIBRARIES} ${PLATFORM_SPECIFIC_LIBS} ${RPCRT4} ${CMAKE_DL_LIBS} ${readline_libraries} ${ECC_LIB} ${security_framework} ${corefoundation_framework} )
+target_link_libraries( fc PUBLIC ${LINK_USR_LOCAL_LIB} ${Boost_LIBRARIES} ${OPENSSL_LIBRARIES} ${ZLIB_LIBRARIES} ${PLATFORM_SPECIFIC_LIBS} ${RPCRT4} ${CMAKE_DL_LIBS} ${rt_library} ${readline_libraries} ${ECC_LIB} ${security_framework} ${corefoundation_framework} )
 
 
 SET(OPENSSL_CONF_TARGET )
