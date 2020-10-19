@@ -44,6 +44,11 @@ namespace fc
             return !(a == b);
          }
 
+         template<size_t I>
+         constexpr auto get() noexcept {
+            return std::get<I>(*this);
+         }
+
       private:
          string  _key;
          variant _value;
@@ -241,3 +246,16 @@ namespace fc
    void from_variant( const variant& var,  mutable_variant_object& vo );
 
 } // namespace fc
+
+namespace std {
+
+   template<>
+   class tuple_size<fc::variant_object::entry> : public integral_constant<size_t, 2> {};
+
+   template<size_t I>
+   class tuple_element<I, fc::variant_object::entry>;
+
+   template<size_t I>
+   typename tuple_element<I, fc::variant_object::entry>::type const& get(const fc::variant_object::entry& e);
+
+} // namespace std

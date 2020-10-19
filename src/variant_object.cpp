@@ -411,3 +411,29 @@ namespace fc
    }
 
 } // namesapce fc
+
+namespace std {
+
+   template<>
+   class tuple_element<0, fc::variant_object::entry> {
+   public:
+      using type = string;
+   };
+
+   template<>
+   class tuple_element<1, fc::variant_object::entry> {
+   public:
+      using type = fc::variant;
+   };
+
+   template<>
+   typename tuple_element<0, fc::variant_object::entry>::type const& get<0>(const fc::variant_object::entry& e) {
+      return e.key();
+   }
+
+   template<>
+   typename tuple_element<1, fc::variant_object::entry>::type const& get<1>(const fc::variant_object::entry& e) {
+      return e.value();
+   }
+
+} // namespace std
